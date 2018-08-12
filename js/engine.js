@@ -9,10 +9,9 @@
  * drawn but that is not the case. What's really happening is the entire "scene"
  * is being drawn over and over, presenting the illusion of animation.
  *
- * This engine makes the canvas' context (ctx) object globally available to make 
+ * This engine makes the canvas' context (ctx) object globally available to make
  * writing app.js a little simpler to work with.
  */
-
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
@@ -79,7 +78,35 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+    }
+
+    function checkCollisions() {
+      allEnemies.forEach(function(enemy) {
+        let x = enemy.x;
+        let y = enemy.y;
+        let lmargin = player.x - x.toFixed(4);
+        let lmarginvalue = 0;
+        if(player.x == 0) {
+          if(((Math.round(x.toFixed(3)) == player.x)  && enemy.x > .0800 && enemy.x < .200 && (Math.round(y.toFixed(2)) == player.y))) {
+            player.x = 202;
+            player.y = 415;
+            player.update();
+          }
+        }
+        else {
+          lmarginvalue = .175;
+          if(((Math.round(x.toFixed(3)) == player.x) && (lmargin.toFixed(5) < lmarginvalue) && (Math.round(y.toFixed(2)) == player.y))) {
+            player.x = 202;
+            player.y = 415;
+            player.update();
+          }
+        }
+      });
+
+      if(player.y == 0) {
+        reset();
+      }
     }
 
     /* This is called by the update function and loops through all of the
@@ -90,10 +117,12 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
+
         allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
-        });
-        player.update();
+              enemy.update(dt,enemy.x,enemy.y);
+          });
+
+         player.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -117,7 +146,7 @@ var Engine = (function(global) {
             numRows = 6,
             numCols = 5,
             row, col;
-        
+
         // Before drawing, clear existing canvas
         ctx.clearRect(0,0,canvas.width,canvas.height)
 
@@ -149,19 +178,31 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
-            enemy.render();
+
+        allEnemies.forEach(function(Enemy) {
+            Enemy.render();
         });
 
         player.render();
+
     }
 
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
+
     function reset() {
-        // noop
+
+      if(player.y == 0) {
+      player.x = 2;
+      player.y = 5;
+      player.update();
+        setTimeout(function() {
+          alert("You Won!");
+        },100);
+      }
+
     }
 
     /* Go ahead and load all of the images we know we're going to need to
